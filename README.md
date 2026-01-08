@@ -9,6 +9,7 @@ Code Generation: 100% of the HTML, Tailwind CSS styling, and complex React logic
 Problem Solving: Critical features like the "Unlimited Text" chunking system and the robust mobile download fix were diagnosed and implemented via AI prompts.
 
 ✨ Features
+
 🚀 Unlimited Text Support: Includes a smart chunking engine that automatically splits long text into smaller parts and stitches the audio back together seamlessly.
 
 🎙️ Voice Studio: Choose from a curated list of high-quality Indian voices, including:
