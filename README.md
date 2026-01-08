@@ -37,4 +37,5 @@ Download the index.html file from this repository.
 Open the file in any modern web browser (Chrome, Edge, Safari, Brave).
 Enjoy! No npm install, no build servers, and no installations are required.
 Note: You will need an active internet connection as the app loads React and Tailwind from CDNs.
-Disclaimer: This is a fan-made project created for educational purposes. It utilizes the Sarvam AI API for synthesis.
+
+Disclaimer: This is a project created for educational purposes. It utilizes the Sarvam AI API for synthesis.
