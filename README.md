@@ -1,7 +1,7 @@
 Malayalam Voice Studio 🎙️🔊
 Welcome to Malayalam Voice Studio. This is a modern, high-performance web application designed to convert Malayalam text into lifelike speech using the advanced Sarvam AI engine.
 
-🔴 LIVE DEMO:https://malayalam-tts.vercel.app/
+🔴 LIVE DEMO:https://malayalam-tts.vercel.app
 
 🤖 Made with Google Gemini
 This entire project was designed, architected, and coded using Google Gemini.
