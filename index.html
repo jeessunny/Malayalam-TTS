@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malayalam Voice Studio — iOS Glassmorphism</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gayathri:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Premium Icons (Lucide-like SVGs in CSS) -->
+  <style>
+    /* Design System Tokens */
+    :root {
+      --font-ui: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-ml: 'Gayathri', sans-serif;
+      
+      --color-bg-base: #06050a;
+      --color-glass-bg: rgba(18, 18, 28, 0.45);
+      --color-glass-border: rgba(255, 255, 255, 0.08);
+      --color-glass-highlight: rgba(255, 255, 255, 0.15);
+      
+      --color-text-primary: rgba(255, 255, 255, 0.95);
+      --color-text-secondary: rgba(255, 255, 255, 0.55);
+      --color-text-muted: rgba(255, 255, 255, 0.35);
+      
+      --color-accent-blue: #007aff;
+      --color-accent-blue-glow: rgba(0, 122, 255, 0.35);
+      --color-accent-purple: #af52de;
+      --color-accent-purple-glow: rgba(175, 82, 222, 0.35);
+      --color-accent-green: #30d158;
+      --color-accent-red: #ff453a;
+    }
+
+    /* Base Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus,
+    button:active,
+    input:focus,
+    select:focus,
+    textarea:focus,
+    [role="button"]:focus,
+    .voice-card:focus,
+    .voice-card:active,
+    .ios-slider:focus,
+    a:focus,
+    a:active {
+      outline: none !important;
+    }
+
+    body {
+      background-color: var(--color-bg-base);
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Fluid Animated Background Blobs */
+    .bg-blobs {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #0d0b1a 0%, #040307 100%);
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.35;
+      animation: float 28s infinite alternate ease-in-out;
+      pointer-events: none;
+    }
+
+
+
+    .blob-2 {
+      bottom: -15%;
+      right: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, #5856d6 0%, #007aff 100%);
+      animation-delay: -7s;
+      animation-duration: 35s;
+    }
+
+    .blob-3 {
+      top: 35%;
+      left: 25%;
+      width: 40vw;
+      height: 40vw;
+      background: radial-gradient(circle, #af52de 0%, #ff2d55 100%);
+      opacity: 0.2;
+      animation-delay: -14s;
+      animation-duration: 22s;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50% { transform: translate(6%, 8%) scale(1.15) rotate(120deg); }
+      100% { transform: translate(-4%, -6%) scale(0.9) rotate(240deg); }
+    }
+
+    /* Glassmorphism System */
+    .glass-panel {
+      background: var(--color-glass-bg);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid var(--color-glass-border);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.4);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+      box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    /* Navigation / iOS Floating Header */
+    .header-container {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 24px 12px 24px;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    /* Logo "ma" */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--color-accent-purple), var(--color-accent-blue));
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+      font-family: var(--font-ui);
+      letter-spacing: -0.3px;
+      line-height: 1;
+      box-shadow: 0 4px 12px rgba(175, 82, 222, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .logo-container:hover .logo-icon {
+      transform: scale(1.08) rotate(-6deg);
+      box-shadow: 0 6px 16px rgba(175, 82, 222, 0.45);
+    }
+    .logo-text {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+    }
+    .logo-gradient-text {
+      background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-left: 1px;
+    }
+
+    /* Theme Toggle Button */
+    .header-actions {
+      display: flex;
+      align-items: center;
+    }
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--color-glass-bg);
+      border: 1px solid var(--color-glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .theme-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: scale(1.06);
+    }
+    .theme-toggle-btn:active {
+      transform: scale(0.94);
+    }
+
+    .theme-toggle-btn svg {
+      position: absolute;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+
+    .theme-toggle-btn .sun-icon {
+      opacity: 0;
+      transform: rotate(90deg) scale(0.5);
+    }
+    .theme-toggle-btn .moon-icon {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+
+    /* Smooth theme transitions */
+    body,
+    .bg-blobs,
+    .blob,
+    .glass-panel,
+    .card-header,
+    .voice-card,
+    .voice-badge,
+    .select-indicator,
+    .segmented-control,
+    .segmented-control button,
+    .segmented-control .slider-bg,
+    .ios-slider,
+    .textarea-footer,
+    .play-btn,
+    .waveform-visualizer,
+    .waveform-bar,
+    .download-btn,
+    .reset-settings-btn,
+    .logo-text,
+    .logo-gradient-text,
+    .char-count,
+    .clear-btn,
+    textarea {
+      transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Light Mode CSS Overrides */
+    body.light-mode {
+      --color-bg-base: #f3f4f8;
+      --color-glass-bg: rgba(255, 255, 255, 0.45);
+      --color-glass-border: rgba(0, 0, 0, 0.06);
+      --color-glass-highlight: rgba(0, 0, 0, 0.1);
+      
+      --color-text-primary: #1d1d1f;
+      --color-text-secondary: #6e6e73;
+      --color-text-muted: #aeaeaf;
+    }
+
+    body.light-mode .glass-panel,
+    body.light-mode .glass-panel:hover {
+      box-shadow: none;
+    }
+
+    body.light-mode .bg-blobs {
+      background: radial-gradient(circle at 50% 50%, #f4f6fa 0%, #e3e7f0 100%);
+    }
+    body.light-mode .blob {
+      opacity: 0.28;
+    }
+
+    body.light-mode .blob-2 {
+      background: radial-gradient(circle, #c3c1ff 0%, #b3dcff 100%);
+    }
+    body.light-mode .blob-3 {
+      background: radial-gradient(circle, #e6b3ff 0%, #ffb3c1 100%);
+    }
+
+    body.light-mode .theme-toggle-btn .sun-icon {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+      color: #ff9500;
+    }
+    body.light-mode .theme-toggle-btn .moon-icon {
+      opacity: 0;
+      transform: rotate(-90deg) scale(0.5);
+    }
+    body.light-mode .theme-toggle-btn:hover {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    body.light-mode .card-header {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode .voice-card {
+      background: rgba(0, 0, 0, 0.012);
+      border-color: rgba(0, 0, 0, 0.03);
+    }
+    body.light-mode .voice-card:hover {
+      background: rgba(0, 0, 0, 0.025);
+      border-color: rgba(0, 0, 0, 0.06);
+    }
+    body.light-mode .voice-card.selected {
+      background: rgba(0, 122, 255, 0.05);
+      border-color: rgba(0, 122, 255, 0.25);
+    }
+    body.light-mode .voice-badge {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    body.light-mode .select-indicator {
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+    body.light-mode .voice-card.selected .select-indicator {
+      border-color: var(--color-accent-blue);
+    }
+    body.light-mode .segmented-control {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.02);
+    }
+    body.light-mode .segmented-control button {
+      color: var(--color-text-secondary);
+    }
+    body.light-mode .segmented-control button.active {
+      color: #000;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    body.light-mode .segmented-control .slider-bg {
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+    body.light-mode .ios-slider {
+      background: rgba(0, 0, 0, 0.06);
+    }
+    body.light-mode .ios-slider:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    body.light-mode .textarea-footer {
+      border-top-color: rgba(0, 0, 0, 0.04);
+    }
+    body.light-mode .play-btn {
+      background: #1d1d1f;
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+    body.light-mode .play-btn:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+    body.light-mode .play-btn:disabled {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--color-text-muted);
+    }
+    body.light-mode .waveform-visualizer {
+      background: rgba(0, 0, 0, 0.015);
+      border-color: rgba(0, 0, 0, 0.03);
+    }
+    body.light-mode .waveform-bar {
+      background: rgba(0, 0, 0, 0.12);
+    }
+    body.light-mode .download-btn {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.05);
+      color: #1d1d1f;
+    }
+    body.light-mode .download-btn:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+    body.light-mode .toast {
+      background: rgba(255, 255, 255, 0.94);
+      border-color: rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    body.light-mode .toast-msg {
+      color: #1d1d1f;
+    }
+
+    /* Dynamic Island removed */
+
+    /* Main Container Grid */
+    .app-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 60px 24px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 28px;
+      flex-grow: 1;
+    }
+
+    /* Columns Layout */
+    .col-left {
+      grid-column: span 5;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .col-right {
+      grid-column: span 7;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Card Layouts */
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-text-primary);
+    }
+
+    .card-title svg {
+      color: var(--color-accent-purple);
+    }
+
+    .reset-settings-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      background: var(--color-glass-bg);
+      border: 1px solid var(--color-glass-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reset-settings-btn:hover {
+      color: var(--color-text-primary);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+    .reset-settings-btn:active {
+      transform: translateY(0);
+    }
+    body.light-mode .reset-settings-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+    .reset-settings-btn svg {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Voice Selection UI */
+    .voice-selector-panel {
+      height: 480px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .voice-list-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 4px 16px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Custom Webkit scrollbar for premium look */
+    .voice-list-container::-webkit-scrollbar,
+    .settings-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .voice-list-container::-webkit-scrollbar-track,
+    .settings-panel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .voice-list-container::-webkit-scrollbar-thumb,
+    .settings-panel::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .voice-list-container::-webkit-scrollbar-thumb:hover,
+    .settings-panel::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Segmented Controls (iOS Native Look) */
+    .segmented-control {
+      display: flex;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin: 0 20px 14px 20px;
+      position: relative;
+    }
+
+    .segmented-control button {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--color-text-secondary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 2;
+    }
+
+    .segmented-control button.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .segmented-control .slider-bg {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      bottom: 3px;
+      width: calc(50% - 3px);
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 11px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Voice Cards */
+    .voice-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .voice-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .voice-card.selected {
+      background: rgba(0, 122, 255, 0.08);
+      border-color: rgba(0, 122, 255, 0.35);
+      box-shadow: 0 0 20px rgba(0, 122, 255, 0.15);
+    }
+
+    .voice-card.selected::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 18px;
+      border: 1.5px solid var(--color-accent-blue);
+      pointer-events: none;
+      box-shadow: inset 0 0 8px rgba(0, 122, 255, 0.2);
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .voice-card.selected .avatar {
+      transform: scale(1.08);
+    }
+
+    .voice-info {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    .voice-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .voice-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-text-primary);
+    }
+
+    .voice-badge {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1px 6px;
+      border-radius: 10px;
+      color: var(--color-text-secondary);
+    }
+
+    .voice-desc {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .select-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .voice-card.selected .select-indicator {
+      background-color: var(--color-accent-blue);
+      border-color: var(--color-accent-blue);
+    }
+
+    .select-indicator svg {
+      opacity: 0;
+      color: #fff;
+      transition: opacity 0.2s ease;
+    }
+
+    .voice-card.selected .select-indicator svg {
+      opacity: 1;
+    }
+
+    /* Settings Sliders */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .slider-val {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-accent-blue);
+    }
+
+    .slider-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* iOS Native Style Slider Track & Thumb */
+    .ios-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .ios-slider:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .ios-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+      cursor: grab;
+      transition: transform 0.15s ease;
+    }
+
+    .ios-slider::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.15);
+    }
+
+    .ios-slider::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: none;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+      cursor: grab;
+      transition: transform 0.15s ease;
+    }
+
+    .ios-slider::-moz-range-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.15);
+    }
+
+    .slider-markers {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--color-text-muted);
+      font-weight: 600;
+      padding-top: 4px;
+    }
+
+    /* Text Area Component */
+    .textarea-panel {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 380px;
+    }
+
+    .textarea-container {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+    }
+
+    .malayalam-textarea {
+      width: 100%;
+      flex-grow: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--color-text-primary);
+      font-family: var(--font-ml);
+      font-size: 20px;
+      line-height: 1.6;
+      resize: none;
+      padding: 0;
+      margin-bottom: 15px;
+    }
+
+    .malayalam-textarea::placeholder {
+      color: var(--color-text-muted);
+      font-family: var(--font-ui);
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .textarea-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .char-count {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      font-weight: 600;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .clear-btn:hover {
+      color: var(--color-accent-red);
+    }
+
+    /* Audio Player Panel */
+    .player-panel {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+
+    .play-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: none;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+    }
+
+    .play-btn:hover:not(:disabled) {
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
+    }
+
+    .play-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .play-btn:disabled {
+      opacity: 0.3;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--color-text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .waveform-visualizer {
+      flex-grow: 1;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .waveform-bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 24px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .waveform-bar {
+      width: 3px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+
+    .waveform-bars.playing .waveform-bar {
+      animation: bounce 1.1s ease-in-out infinite alternate;
+      background: var(--color-accent-blue);
+      box-shadow: 0 0 4px var(--color-accent-blue-glow);
+    }
+
+    /* Staggered Delay for wave visualizer bars */
+    .waveform-bars.playing .waveform-bar:nth-child(even) {
+      animation-duration: 0.8s;
+    }
+    .waveform-bars.playing .waveform-bar:nth-child(3n) {
+      animation-duration: 1.3s;
+    }
+
+    @keyframes bounce {
+      0% { height: 4px; }
+      100% { height: 22px; }
+    }
+
+    .download-btn {
+      height: 48px;
+      padding: 0 20px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--color-text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .download-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .download-btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .download-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* Massive Generate Button (iOS 27 CTA design) */
+    .generate-btn {
+      height: 64px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #007aff 0%, #af52de 50%, #ff2d55 100%);
+      background-size: 200% 200%;
+      border: none;
+      color: #ffffff;
+      font-family: var(--font-ui);
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 8px 30px rgba(175, 82, 222, 0.3), inset 0 1px 1px rgba(255,255,255,0.25);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: gradientShift 6s ease infinite;
+    }
+
+    .generate-btn:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 15px 35px rgba(175, 82, 222, 0.5), inset 0 1.5px 1.5px rgba(255,255,255,0.4);
+    }
+
+    .generate-btn:active:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .generate-btn:disabled {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--color-text-secondary);
+      cursor: not-allowed;
+      box-shadow: none;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast Notification (iOS Style Banner) */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+      z-index: 1000;
+      transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+      pointer-events: none;
+    }
+
+    .toast-container.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast {
+      background: rgba(15, 15, 20, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+      min-width: 280px;
+      max-width: 90vw;
+    }
+
+    .toast-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .toast.success .toast-icon {
+      background: rgba(48, 209, 88, 0.15);
+      color: var(--color-accent-green);
+    }
+
+    .toast.error .toast-icon {
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--color-accent-red);
+    }
+
+    .toast-msg {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        padding-bottom: 40px;
+      }
+      .col-left {
+        grid-column: span 12;
+        order: 2; /* Voices & Settings go bottom on mobile */
+      }
+      .col-right {
+        grid-column: span 12;
+        order: 1; /* Input & Play buttons go top on mobile */
+      }
+    }
+
+    @media (max-width: 576px) {
+      .header-container {
+        padding: 16px 16px 8px 16px;
+      }
+      .logo-text {
+        font-size: 16px;
+      }
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+      }
+      .theme-toggle-btn {
+        width: 36px;
+        height: 36px;
+      }
+      .app-container {
+        padding: 0 16px 30px 16px;
+        gap: 20px;
+      }
+      .segmented-control {
+        margin: 0 14px 10px 14px;
+      }
+      .malayalam-textarea {
+        font-size: 18px;
+      }
+      .player-panel {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .play-btn {
+        width: 44px;
+        height: 44px;
+      }
+      .waveform-visualizer {
+        height: 36px;
+        padding: 0 12px;
+      }
+      .download-btn {
+        height: 44px;
+        padding: 0 14px;
+      }
+      @media (max-width: 420px) {
+        .download-btn span {
+          display: none;
+        }
+        .download-btn {
+          width: 44px;
+          padding: 0;
+          justify-content: center;
+          border-radius: 50%;
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Animated background -->
+  <div class="bg-blobs">
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Header Navbar -->
+  <header class="header-container">
+    <!-- Left Logo "മ" -->
+    <div class="logo-container" onclick="location.reload()">
+      <div class="logo-icon">mvs</div>
+      <span class="logo-text">Malayalam Voice <span class="logo-gradient-text">Studio</span></span>
+    </div>
+
+    <!-- Right Theme Toggle -->
+    <div class="header-actions">
+      <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode">
+        <!-- Sun Icon (visible in Light Mode) -->
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+        <!-- Moon Icon (visible in Dark Mode) -->
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <main class="app-container">
+    
+    <!-- LEFT COLUMN: Voice selector & settings -->
+    <div class="col-left">
+      
+      <!-- Voice selector card -->
+      <section class="glass-panel voice-selector-panel">
+        <div class="card-header">
+          <h2 class="card-title">
+            <!-- Sparkles Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            Select Speaker
+          </h2>
+        </div>
+        
+        <!-- Segmented filter control -->
+        <div class="segmented-control">
+          <div id="gender-slider-bg" class="slider-bg"></div>
+          <button id="btn-female" onclick="filterGender('Female')" class="active">Female</button>
+          <button id="btn-male" onclick="filterGender('Male')">Male</button>
+        </div>
+        
+        <!-- Voice List -->
+        <div id="voice-list" class="voice-list-container">
+          <!-- Populated dynamically via Javascript -->
+        </div>
+      </section>
+      
+      <!-- Settings slider panel -->
+      <section class="glass-panel">
+        <div class="card-header">
+          <h2 class="card-title">
+            <!-- Settings Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            Fine-Tuning Settings
+          </h2>
+          <button class="reset-settings-btn" onclick="resetSettings()" title="Reset Settings" aria-label="Reset Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M16 3h5v5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 21H3v-5"/></svg>
+            Reset
+          </button>
+        </div>
+        <div class="card-body">
+          
+          <!-- Speed / Pace -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Speed</span>
+              <span id="label-pace" class="slider-val">1.0x</span>
+            </div>
+            <div class="slider-wrapper">
+              <input type="range" id="slider-pace" min="0.5" max="1.5" step="0.1" value="1.0" class="ios-slider" oninput="updateSliderVal('pace', this.value)">
+            </div>
+            <div class="slider-markers">
+              <span>0.5x (Slow)</span>
+              <span>Normal</span>
+              <span>1.5x (Fast)</span>
+            </div>
+          </div>
+
+          <!-- Pitch -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Pitch</span>
+              <span id="label-pitch" class="slider-val">0.0</span>
+            </div>
+            <div class="slider-wrapper">
+              <input type="range" id="slider-pitch" min="-1.0" max="1.0" step="0.1" value="0.0" class="ios-slider" oninput="updateSliderVal('pitch', this.value)">
+            </div>
+            <div class="slider-markers">
+              <span>-1.0 (Low)</span>
+              <span>Normal</span>
+              <span>+1.0 (High)</span>
+            </div>
+          </div>
+
+          <!-- Loudness -->
+          <div class="slider-group">
+            <div class="slider-header">
+              <span class="slider-label">Loudness</span>
+              <span id="label-loudness" class="slider-val">1.0</span>
+            </div>
+            <div class="slider-wrapper">
+              <input type="range" id="slider-loudness" min="0.5" max="1.5" step="0.1" value="1.0" class="ios-slider" oninput="updateSliderVal('loudness', this.value)">
+            </div>
+            <div class="slider-markers">
+              <span>Soft</span>
+              <span>Normal</span>
+              <span>Loud</span>
+            </div>
+          </div>
+
+          <!-- Audio Quality Selector -->
+          <div class="slider-group" style="margin-top: 10px;">
+            <span class="slider-label" style="margin-bottom: 8px;">Audio Sample Rate</span>
+            <div class="segmented-control" style="margin: 0; width: 100%;">
+              <div id="quality-slider-bg" class="slider-bg" style="width: calc(50% - 3px)"></div>
+              <button id="btn-quality-16" onclick="setQuality(16000)" class="active">High Quality (16kHz)</button>
+              <button id="btn-quality-8" onclick="setQuality(8000)">Standard (8kHz)</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Input Area, Audio Player, Generate button -->
+    <div class="col-right">
+      
+      <!-- Malayalam Text Input Panel -->
+      <section class="glass-panel textarea-panel">
+        <div class="card-header">
+          <h2 class="card-title">
+            <!-- Keyboard Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M6 10h.01"/><path d="M10 10h.01"/><path d="M14 10h.01"/><path d="M18 10h.01"/><path d="M6 14h.01"/><path d="M18 14h.01"/><path d="M10 14h4"/></svg>
+            Malayalam Voice Studio
+          </h2>
+        </div>
+        <div class="textarea-container">
+          <textarea id="tts-input" class="malayalam-textarea" placeholder="ഇവിടെ മലയാളത്തിൽ ടൈപ്പ് ചെയ്യുക... (പരിധിയില്ലാത്ത ടെക്സ്റ്റ് നീളം)" spellcheck="false"></textarea>
+          <div class="textarea-footer">
+            <span id="char-counter" class="char-count">0 characters</span>
+            <button onclick="clearText()" class="clear-btn">
+              <!-- Trash Icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              Clear Workspace
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Audio Player controls -->
+      <section class="glass-panel player-panel">
+        <button id="play-pause-btn" onclick="togglePlayback()" class="play-btn" disabled>
+          <!-- Play Icon -->
+          <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <!-- Pause Icon (hidden initially) -->
+          <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <!-- Waveform visualizer container -->
+        <div class="waveform-visualizer">
+          <div id="waveform" class="waveform-bars">
+            <!-- 24 visualizer bars -->
+            <div class="waveform-bar" style="height: 4px;"></div>
+            <div class="waveform-bar" style="height: 6px;"></div>
+            <div class="waveform-bar" style="height: 8px;"></div>
+            <div class="waveform-bar" style="height: 4px;"></div>
+            <div class="waveform-bar" style="height: 12px;"></div>
+            <div class="waveform-bar" style="height: 16px;"></div>
+            <div class="waveform-bar" style="height: 10px;"></div>
+            <div class="waveform-bar" style="height: 6px;"></div>
+            <div class="waveform-bar" style="height: 8px;"></div>
+            <div class="waveform-bar" style="height: 14px;"></div>
+            <div class="waveform-bar" style="height: 18px;"></div>
+            <div class="waveform-bar" style="height: 22px;"></div>
+            <div class="waveform-bar" style="height: 14px;"></div>
+            <div class="waveform-bar" style="height: 10px;"></div>
+            <div class="waveform-bar" style="height: 8px;"></div>
+            <div class="waveform-bar" style="height: 16px;"></div>
+            <div class="waveform-bar" style="height: 12px;"></div>
+            <div class="waveform-bar" style="height: 6px;"></div>
+            <div class="waveform-bar" style="height: 4px;"></div>
+            <div class="waveform-bar" style="height: 10px;"></div>
+            <div class="waveform-bar" style="height: 8px;"></div>
+            <div class="waveform-bar" style="height: 6px;"></div>
+            <div class="waveform-bar" style="height: 4px;"></div>
+            <div class="waveform-bar" style="height: 5px;"></div>
+          </div>
+        </div>
+
+        <button id="download-btn" onclick="downloadAudio()" class="download-btn" disabled>
+          <!-- Download Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span>Download</span>
+        </button>
+      </section>
+
+      <!-- Generate Button -->
+      <button id="generate-btn" onclick="generateSpeech()" class="generate-btn">
+        <!-- Sound/Volume wave icon -->
+        <svg id="generate-icon-sound" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <!-- Spinner Icon -->
+        <svg id="generate-icon-spinner" class="spinner" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><line x1="12" x2="12" y1="2" y2="6"/><line x1="12" x2="12" y1="18" y2="22"/><line x1="4.93" x2="7.76" y1="4.93" y2="7.76"/><line x1="16.24" x2="19.07" y1="16.24" y2="19.07"/><line x1="2" x2="6" y1="12" y2="12"/><line x1="18" x2="22" y1="12" y2="12"/><line x1="4.93" x2="7.76" y1="19.07" y2="16.24"/><line x1="16.24" x2="19.07" y1="7.76" y2="4.93"/></svg>
+        <span id="generate-text">Generate Speech</span>
+      </button>
+
+    </div>
+
+  </main>
+
+  <!-- iOS-like Toast Container -->
+  <div id="toast-container" class="toast-container">
+    <div id="toast" class="toast">
+      <div class="toast-icon">
+        <!-- Check icon for success -->
+        <svg id="toast-success-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <!-- Info/Alert icon for errors -->
+        <svg id="toast-error-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+      </div>
+      <span id="toast-message" class="toast-msg">Success</span>
+    </div>
+  </div>
+
+  <!-- Audio Element -->
+  <audio id="audio-player" src="" style="display: none;"></audio>
+
+  <!-- Frontend Logic in Vanilla ES6 JS -->
+  <script>
+    // System Data
+    const VOICES = [
+      { id: 'anushka', name: 'Anushka', gender: 'Female', color: 'linear-gradient(135deg, #ff2d55, #ff9500)', desc: 'Soft & Crystal Clear' },
+      { id: 'manisha', name: 'Manisha', gender: 'Female', color: 'linear-gradient(135deg, #d946ef, #8b5cf6)', desc: 'Warm Narrative Tone' },
+      { id: 'vidya', name: 'Vidya', gender: 'Female', color: 'linear-gradient(135deg, #8b5cf6, #6366f1)', desc: 'Formal Broadcast Voice' },
+      { id: 'arya', name: 'Arya', gender: 'Female', color: 'linear-gradient(135deg, #fb7185, #fb923c)', desc: 'Energetic & Conversational' },
+      { id: 'abhilash', name: 'Abhilash', gender: 'Male', color: 'linear-gradient(135deg, #3b82f6, #06b6d4)', desc: 'Deep & Resonant' },
+      { id: 'karun', name: 'Karun', gender: 'Male', color: 'linear-gradient(135deg, #0ea5e9, #2563eb)', desc: 'Casual Daily Speech' },
+      { id: 'hitesh', name: 'Hitesh', gender: 'Male', color: 'linear-gradient(135deg, #14b8a6, #10b981)', desc: 'Authoritative Narrator' }
+    ];
+
+    // State Variables
+    const state = {
+      text: "നമസ്കാരം, സുഖമാണോ? ഇതൊരു പുതിയ വോയിസ് ടെസ്റ്റ് ആണ്.",
+      voice: "anushka",
+      genderFilter: "Female",
+      settings: {
+        pace: 1.0,
+        pitch: 0.0,
+        loudness: 1.0,
+        sampleRate: 16000
+      },
+      audioUrl: null,
+      audioBlob: null,
+      isPlaying: false,
+      loading: false,
+      toastTimer: null
+    };
+
+    // DOM Elements
+    const elements = {
+      ttsInput: document.getElementById('tts-input'),
+      charCounter: document.getElementById('char-counter'),
+      voiceList: document.getElementById('voice-list'),
+      btnFemale: document.getElementById('btn-female'),
+      btnMale: document.getElementById('btn-male'),
+      genderSliderBg: document.getElementById('gender-slider-bg'),
+      
+      labelPace: document.getElementById('label-pace'),
+      labelPitch: document.getElementById('label-pitch'),
+      labelLoudness: document.getElementById('label-loudness'),
+      sliderPace: document.getElementById('slider-pace'),
+      sliderPitch: document.getElementById('slider-pitch'),
+      sliderLoudness: document.getElementById('slider-loudness'),
+      btnQuality16: document.getElementById('btn-quality-16'),
+      btnQuality8: document.getElementById('btn-quality-8'),
+      qualitySliderBg: document.getElementById('quality-slider-bg'),
+
+      playPauseBtn: document.getElementById('play-pause-btn'),
+      playIcon: document.getElementById('play-icon'),
+      pauseIcon: document.getElementById('pause-icon'),
+      waveform: document.getElementById('waveform'),
+      downloadBtn: document.getElementById('download-btn'),
+      generateBtn: document.getElementById('generate-btn'),
+      generateText: document.getElementById('generate-text'),
+      audioPlayer: document.getElementById('audio-player'),
+
+
+      toastContainer: document.getElementById('toast-container'),
+      toast: document.getElementById('toast'),
+      toastMessage: document.getElementById('toast-message'),
+      toastSuccessIcon: document.getElementById('toast-success-icon'),
+      toastErrorIcon: document.getElementById('toast-error-icon')
+    };
+
+    // Initialize Application
+    window.addEventListener('DOMContentLoaded', () => {
+      elements.ttsInput.value = state.text;
+      updateCharCount();
+      renderVoices();
+      initAudioListeners();
+
+      // Load and apply theme based on user preference or device settings
+      const savedTheme = localStorage.getItem('theme');
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      const activeTheme = savedTheme ? savedTheme : (prefersLight ? 'light' : 'dark');
+      
+      if (activeTheme === 'light') {
+        document.body.classList.add('light-mode');
+      } else {
+        document.body.classList.remove('light-mode');
+      }
+
+      // Bind theme toggle button
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      });
+
+      // Listen for typing input
+      elements.ttsInput.addEventListener('input', (e) => {
+        state.text = e.target.value;
+        updateCharCount();
+      });
+    });
+
+    // Character Counter UI
+    function updateCharCount() {
+      const count = state.text.length;
+      elements.charCounter.textContent = `${count} character${count !== 1 ? 's' : ''}`;
+    }
+
+    // Clear Text Area
+    function clearText() {
+      state.text = "";
+      elements.ttsInput.value = "";
+      updateCharCount();
+      elements.ttsInput.focus();
+    }
+
+    // Gender Tabs Filter (segmented control sliding background)
+    function filterGender(gender) {
+      state.genderFilter = gender;
+      
+      if (gender === 'Female') {
+        elements.btnFemale.classList.add('active');
+        elements.btnMale.classList.remove('active');
+        elements.genderSliderBg.style.transform = 'translateX(0)';
+      } else {
+        elements.btnFemale.classList.remove('active');
+        elements.btnMale.classList.add('active');
+        elements.genderSliderBg.style.transform = 'translateX(100%)';
+      }
+
+      // Automatically select first voice in filtered list
+      const filtered = VOICES.filter(v => v.gender === gender);
+      if (filtered.length > 0) {
+        state.voice = filtered[0].id;
+      }
+      
+      renderVoices();
+      updateDynamicIsland();
+    }
+
+    // Render Voice List dynamically
+    function renderVoices() {
+      const filtered = VOICES.filter(v => v.gender === state.genderFilter);
+      elements.voiceList.innerHTML = "";
+      
+      filtered.forEach(voice => {
+        const isSelected = state.voice === voice.id;
+        
+        const card = document.createElement('div');
+        card.className = `voice-card ${isSelected ? 'selected' : ''}`;
+        card.setAttribute('onclick', `selectVoice('${voice.id}')`);
+        
+        card.innerHTML = `
+          <div class="avatar" style="background: ${voice.color}">
+            ${voice.name.charAt(0)}
+          </div>
+          <div class="voice-info">
+            <div class="voice-name-row">
+              <span class="voice-name">${voice.name}</span>
+              <span class="voice-badge">${voice.gender}</span>
+            </div>
+            <div class="voice-desc">${voice.desc}</div>
+          </div>
+          <div class="select-indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        `;
+        elements.voiceList.appendChild(card);
+      });
+    }
+
+    // Select Voice
+    function selectVoice(voiceId) {
+      state.voice = voiceId;
+      renderVoices();
+      updateDynamicIsland();
+    }
+
+    // Handle Slider Value Changes
+    function updateSliderVal(param, val) {
+      const parsedVal = parseFloat(val);
+      state.settings[param] = parsedVal;
+      
+      if (param === 'pace') {
+        elements.labelPace.textContent = `${parsedVal.toFixed(1)}x`;
+      } else if (param === 'pitch') {
+        elements.labelPitch.textContent = (parsedVal > 0 ? '+' : '') + parsedVal.toFixed(1);
+      } else if (param === 'loudness') {
+        elements.labelLoudness.textContent = parsedVal.toFixed(1);
+      }
+    }
+
+    // Handle Sample Rate Toggle (Segmented control)
+    function setQuality(rate) {
+      state.settings.sampleRate = rate;
+      if (rate === 16000) {
+        elements.btnQuality16.classList.add('active');
+        elements.btnQuality8.classList.remove('active');
+        elements.qualitySliderBg.style.transform = 'translateX(0)';
+      } else {
+        elements.btnQuality16.classList.remove('active');
+        elements.btnQuality8.classList.add('active');
+        elements.qualitySliderBg.style.transform = 'translateX(100%)';
+      }
+    }
+
+    // Reset settings to default values
+    function resetSettings() {
+      state.settings.pace = 1.0;
+      state.settings.pitch = 0.0;
+      state.settings.loudness = 1.0;
+      state.settings.sampleRate = 16000;
+      
+      elements.sliderPace.value = 1.0;
+      elements.sliderPitch.value = 0.0;
+      elements.sliderLoudness.value = 1.0;
+      
+      elements.labelPace.textContent = "1.0x";
+      elements.labelPitch.textContent = "0.0";
+      elements.labelLoudness.textContent = "1.0";
+      
+      elements.btnQuality16.classList.add('active');
+      elements.btnQuality8.classList.remove('active');
+      elements.qualitySliderBg.style.transform = 'translateX(0)';
+    }
+
+    // Show Custom iOS Banner Toast
+    function showToast(message, type = "success") {
+      clearTimeout(state.toastTimer);
+      
+      elements.toastMessage.textContent = message;
+      elements.toast.className = `toast ${type}`;
+      
+      if (type === "success") {
+        elements.toastSuccessIcon.style.display = "block";
+        elements.toastErrorIcon.style.display = "none";
+      } else {
+        elements.toastSuccessIcon.style.display = "none";
+        elements.toastErrorIcon.style.display = "block";
+      }
+
+      elements.toastContainer.classList.add('visible');
+      
+      state.toastTimer = setTimeout(() => {
+        elements.toastContainer.classList.remove('visible');
+      }, 3500);
+    }
+
+    // Dynamic Island State Controller (no-op)
+    function updateDynamicIsland() {}
+
+    // Split text into chunks to comply with Sarvam API limit (~500 chars)
+    function splitTextIntoChunks(text, limit = 480) {
+      const chunks = [];
+      const sentences = text.replace(/([.!?])\s*/g, "$1|").split("|");
+      let current = "";
+      
+      sentences.forEach(sentence => {
+        if ((current + sentence).length > limit) {
+          if (current) chunks.push(current.trim());
+          
+          if (sentence.length > limit) {
+            // Split sentence by words
+            let words = sentence.split(" ");
+            current = "";
+            words.forEach(word => {
+              if ((current + " " + word).length > limit) {
+                chunks.push(current.trim());
+                current = word;
+              } else {
+                current += (current ? " " : "") + word;
+              }
+            });
+          } else {
+            current = sentence;
+          }
+        } else {
+          current += (current ? " " : "") + sentence;
+        }
+      });
+      
+      if (current) chunks.push(current.trim());
+      return chunks.filter(x => x.length > 0);
+    }
+
+    // Merge multi-chunk WAV files into a single WAV buffer
+    function mergeWavBuffers(buffers) {
+      if (!buffers.length) return null;
+      if (buffers.length === 1) return buffers[0];
+      
+      const wavHeaderSize = 44;
+      const totalDataLength = buffers.reduce((acc, buf) => acc + buf.length - wavHeaderSize, 0) + wavHeaderSize;
+      
+      const mergedArray = new Uint8Array(totalDataLength);
+      mergedArray.set(buffers[0], 0);
+      
+      let offset = buffers[0].length;
+      for (let i = 1; i < buffers.length; i++) {
+        mergedArray.set(buffers[i].subarray(wavHeaderSize), offset);
+        offset += buffers[i].length - wavHeaderSize;
+      }
+      
+      const view = new DataView(mergedArray.buffer);
+      // Update ChunkSize (File Size - 8 bytes)
+      view.setUint32(4, totalDataLength - 8, true);
+      // Update Subchunk2Size (Audio Data size in bytes)
+      view.setUint32(40, totalDataLength - wavHeaderSize, true);
+      
+      return mergedArray;
+    }
+
+    // API TTS Speech Generation
+    async function generateSpeech() {
+      if (!state.text.trim()) {
+        showToast("Please enter some text first", "error");
+        return;
+      }
+
+      // Lock text input strictly to Malayalam script
+      const hasMalayalam = /[\u0D00-\u0D7F]/.test(state.text);
+      const hasEnglish = /[a-zA-Z]/.test(state.text);
+      if (!hasMalayalam || hasEnglish) {
+        showToast("Only Malayalam text is supported / ദയവായി മലയാളം മാത്രം നൽകുക", "error");
+        return;
+      }
+
+      state.loading = true;
+      toggleGenerateButton(true);
+
+
+      // Reset audio players
+      if (state.isPlaying) {
+        elements.audioPlayer.pause();
+      }
+      elements.audioPlayer.src = "";
+      state.audioUrl = null;
+      state.audioBlob = null;
+      elements.playPauseBtn.disabled = true;
+      elements.downloadBtn.disabled = true;
+      
+      try {
+        const chunks = splitTextIntoChunks(state.text);
+        const buffers = [];
+        
+        for (let i = 0; i < chunks.length; i++) {
+          updateDynamicIsland(`Chunk ${i+1}/${chunks.length}`, "loading");
+          
+          const requestPayload = {
+            inputs: [chunks[i]],
+            target_language_code: "ml-IN",
+            speaker: state.voice,
+            pace: state.settings.pace,
+            pitch: state.settings.pitch,
+            loudness: state.settings.loudness,
+            speech_sample_rate: parseInt(state.settings.sampleRate),
+            enable_preprocessing: true,
+            model: "bulbul:v2"
+          };
+          
+          const response = await fetch('/api/tts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestPayload)
+          });
+          
+          if (!response.ok) {
+            let errorText = `Error ${response.status}`;
+            try {
+              const errJson = await response.json();
+              if (errJson.message) errorText = errJson.message;
+            } catch (e) {}
+            throw new Error(errorText);
+          }
+          
+          const data = await response.json();
+          
+          if (data.audios && data.audios[0]) {
+            // Convert base64 string back into binary byte array
+            const binaryString = atob(data.audios[0].replace(/\s/g, ''));
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let j = 0; j < len; j++) {
+              bytes[j] = binaryString.charCodeAt(j);
+            }
+            buffers.push(bytes);
+          } else {
+            throw new Error("No audio returned from server");
+          }
+        }
+        
+        updateDynamicIsland("Assembling audio...", "loading");
+        
+        const mergedBytes = mergeWavBuffers(buffers);
+        const audioBlob = new Blob([mergedBytes], { type: 'audio/wav' });
+        
+        state.audioBlob = audioBlob;
+        state.audioUrl = URL.createObjectURL(audioBlob);
+        
+        elements.audioPlayer.src = state.audioUrl;
+        elements.playPauseBtn.disabled = false;
+        elements.downloadBtn.disabled = false;
+        
+        showToast("Audio generated successfully!", "success");
+        updateDynamicIsland("Finished", "active");
+        
+      } catch (error) {
+        console.error("Speech Generation failed:", error);
+        showToast(error.message || "Failed to generate speech", "error");
+        updateDynamicIsland("Error occurred", "error");
+      } finally {
+        state.loading = false;
+        toggleGenerateButton(false);
+      }
+    }
+
+    // Toggle Generate button disabled / loader state
+    function toggleGenerateButton(isLoading) {
+      elements.generateBtn.disabled = isLoading;
+      const soundIcon = document.getElementById('generate-icon-sound');
+      const spinnerIcon = document.getElementById('generate-icon-spinner');
+      if (isLoading) {
+        soundIcon.style.display = "none";
+        spinnerIcon.style.display = "block";
+        elements.generateText.textContent = "Synthesizing...";
+      } else {
+        soundIcon.style.display = "block";
+        spinnerIcon.style.display = "none";
+        elements.generateText.textContent = "Generate Speech";
+      }
+    }
+
+    // Audio Playback Listeners
+    function initAudioListeners() {
+      elements.audioPlayer.addEventListener('play', () => {
+        state.isPlaying = true;
+        elements.playIcon.style.display = "none";
+        elements.pauseIcon.style.display = "block";
+        elements.waveform.classList.add('playing');
+        updateDynamicIsland("Playing", "active");
+      });
+
+      elements.audioPlayer.addEventListener('pause', () => {
+        state.isPlaying = false;
+        elements.playIcon.style.display = "block";
+        elements.pauseIcon.style.display = "none";
+        elements.waveform.classList.remove('playing');
+        updateDynamicIsland("Paused", "");
+      });
+
+      elements.audioPlayer.addEventListener('ended', () => {
+        state.isPlaying = false;
+        elements.playIcon.style.display = "block";
+        elements.pauseIcon.style.display = "none";
+        elements.waveform.classList.remove('playing');
+        updateDynamicIsland("Ready", "");
+      });
+    }
+
+    // Toggle Play/Pause
+    function togglePlayback() {
+      if (!state.audioUrl) return;
+      
+      if (state.isPlaying) {
+        elements.audioPlayer.pause();
+      } else {
+        elements.audioPlayer.play().catch(err => {
+          console.error("Playback failed", err);
+          showToast("Audio playback blocked by browser", "error");
+        });
+      }
+    }
+
+    // Download Audio File (.wav)
+    function downloadAudio() {
+      if (!state.audioBlob) return;
+      
+      try {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([state.audioBlob], { type: 'application/octet-stream' }));
+        link.download = `malayalam_speech_${state.voice}_${Date.now()}.wav`;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        
+        showToast("Downloading Audio File", "success");
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 1000);
+      } catch (err) {
+        console.error("Download failed", err);
+        showToast("Failed to initiate download", "error");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+package.json
+package-lock.json
+
+# Vercel
+.vercel/
+
+# Environment variables & secrets
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+*.key
+*.pem
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
