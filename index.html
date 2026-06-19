@@ -1219,8 +1219,8 @@
 
   <!-- Header Navbar -->
   <header class="header-container">
-    <!-- Left Logo "മ" -->
-    <div class="logo-container" onclick="location.reload()">
+    <!-- Left Logo -->
+    <div class="logo-container">
       <div class="logo-icon">mvs</div>
       <span class="logo-text">Malayalam Voice <span class="logo-gradient-text">Studio</span></span>
     </div>
@@ -1517,6 +1517,12 @@
       updateCharCount();
       renderVoices();
       initAudioListeners();
+
+      // Sync sliders and inputs with initial state
+      elements.sliderPace.value = state.settings.pace;
+      elements.sliderPitch.value = state.settings.pitch;
+      elements.sliderLoudness.value = state.settings.loudness;
+      setQuality(state.settings.sampleRate);
 
       // Load and apply theme based on user preference or device settings
       const savedTheme = localStorage.getItem('theme');
