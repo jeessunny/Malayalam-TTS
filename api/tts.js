@@ -33,14 +33,15 @@ function getRateLimitInfo(ip) {
 const ALLOWED_FIELDS = new Set([
   'inputs', 'target_language_code', 'speaker',
   'pace', 'pitch', 'loudness', 'speech_sample_rate',
-  'enable_preprocessing', 'model', 'sampleRate'
+  'enable_preprocessing', 'model'
 ]);
 
 // Allowed speakers
 const ALLOWED_SPEAKERS = new Set([
-  'anushka', 'arvind', 'meera', 'amol',
-  'kore', 'diya', 'neel', 'maitreyi',
-  'advika', 'abhilash'
+  'anushka', 'manisha', 'vidya', 'arya',
+  'abhilash', 'karun', 'hitesh',
+  'arvind', 'meera', 'amol',
+  'kore', 'diya', 'neel', 'maitreyi', 'advika'
 ]);
 
 function sanitizeBody(body) {

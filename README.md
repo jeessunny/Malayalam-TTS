@@ -1,7 +1,7 @@
 # Malayalam Voice Studio 🎙️🔊
-Welcome to Malayalam Voice Studio. This is a modern, high-performance web application designed to convert Malayalam text into lifelike speech using the advanced Sarvam AI engine.
+Welcome to Malayalam Voice Studio. A modern, high-performance web application that converts Malayalam text into lifelike speech using the advanced Sarvam AI engine.
 
-🔴 **LIVE DEMO**: [malayalam-voice-studio.vercel.app](https://malayalam-voice-studio.vercel.app)
+🔴 **LIVE DEMO**: [indivoice-studio.vercel.app](https://indivoice-studio.vercel.app)
 
 🤖 **Made with Google Gemini**
 This entire project was designed, architected, and coded using Google Gemini.
@@ -9,28 +9,47 @@ This entire project was designed, architected, and coded using Google Gemini.
 * **Problem Solving**: Critical features like the "Unlimited Text" chunking system, the robust mobile download manager, custom resets, and smooth theme transitions were diagnosed and implemented via AI instructions.
 
 ✨ **Features**
-* 🚀 **Unlimited Text Support**: Includes a smart chunking engine that automatically splits long text into smaller parts and stitches the audio back together seamlessly.
-* 🎙️ **Voice Studio**: Choose from a curated list of high-quality Indian voices:
+* 🚀 **Unlimited Text Support**: Smart chunking engine that automatically splits long text into smaller parts and stitches the audio back together seamlessly.
+* 🎙️ **Voice Studio**: Choose from curated high-quality Indian voices:
   * **Female**: Anushka (Soft & Clear), Manisha (Warm Narrative), Vidya (Formal Broadcast), Arya (Conversational)
   * **Male**: Abhilash (Deep & Resonant), Karun (Casual Daily Speech), Hitesh (Authoritative Narrator)
-* 🎛️ **Audio Mixing Console**: Fine-tune your output with professional controls:
-  * **Speed (Pace)**: Adjust speaking rate from 0.5x to 1.5x.
-  * **Pitch**: Modify tone from Deep to High.
-  * **Loudness**: Control the gain/volume.
-  * **Quality**: Switch between 8kHz (Standard) and 16kHz (High Quality).
-  * **Reset Settings**: Instant default settings restore button.
-* 💾 **Robust Download Manager**: Optimized logic ensures generated audio saves correctly as `.wav` files on both desktop and mobile devices.
-* 📱 **iOS-Style Responsive Layout**: A premium glassmorphic interface built with custom Vanilla CSS supporting automatic system theme preferences and smooth dark/light mode switching.
+* 🎛️ **Fine-Tuning Controls**: Professional audio mixing console:
+  * **Speed (Pace)**: Adjust speaking rate from 0.5x to 1.5x
+  * **Pitch**: Modify tone from Deep to High
+  * **Loudness**: Control the gain/volume
+  * **Quality**: Switch between 8kHz (Standard) and 16kHz (High Quality)
+  * **Reset Settings**: Instant default settings restore button
+* 💾 **Robust Download Manager**: Saves generated audio as `.wav` files on both desktop and mobile devices.
+* 🌙 **Dark/Light Mode**: iOS-style glassmorphic interface with smooth theme transitions and system preference detection.
+* 🛡️ **Secure API Proxy**: Server-side API handler with rate limiting (10 req/min per IP), input validation, and Malayalam-only enforcement.
 
-🛠️ **Technologies Used**
-* **HTML5 & Vanilla Javascript (ES6)**: Built as a high-performance single-page app without complex framework steps or bundle overhead.
-* **Vanilla CSS**: Premium hand-crafted glassmorphism styling, theme transitions, and fluid dynamic backdrops.
-* **Sarvam AI API**: Powered by the `bulbul:v2` model for state-of-the-art Malayalam text-to-speech synthesis.
+🔒 **Security**
+* API key is **never exposed** to the client — all API calls go through a secure Vercel serverless function (`/api/tts`)
+* **Rate limited**: 10 requests per minute per IP address to prevent abuse
+* **Input sanitized**: Only whitelisted fields accepted, language locked to Malayalam (`ml-IN`)
+* **Speaker validated**: Only allowed voice IDs are accepted
+
+🛠️ **Tech Stack**
+* **HTML5 & Vanilla Javascript (ES6)**: Single-page app, no framework overhead
+* **Vanilla CSS**: Premium glassmorphism styling with CSS custom properties
+* **Sarvam AI API**: Powered by the `bulbul:v2` model for Malayalam text-to-speech
+* **Vercel**: Serverless deployment with environment variable management
 
 🚀 **How to Run Locally**
-1. Download the repository content.
-2. Setup your local API key in `.env.local` for the `/api/tts` endpoint.
-3. Enjoy! No build steps required.
+1. Clone the repository
+2. Run `npm install` (for Vercel CLI)
+3. Create `.env.local` with your `SARVAM_API_KEY`
+4. Run `npx vercel dev` to start the development server
+5. Open `http://localhost:3000`
+
+📁 **Project Structure**
+```
+├── index.html         # Frontend SPA (HTML + CSS + JS)
+├── api/tts.js         # Serverless API proxy with rate limiting
+├── vercel.json        # Vercel routing configuration
+├── .gitignore         # Security exclusions
+└── README.md          # This file
+```
 
 ---
-*Disclaimer: This is a project created for educational purposes. It utilizes the Sarvam AI API for synthesis.*
+*Disclaimer: This project is created for educational purposes. It utilizes the Sarvam AI API for synthesis.*
